@@ -1,136 +1,94 @@
 import './style.css'
 import * as THREE from 'three'
-import {OrbitControls} from "three/examples/jsm/controls/OrbitControls";
-import gsap from 'gsap';
-import * as dat from 'dat.gui';
+import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls'
+import * as debug from 'dat.gui'
+// DOM Elements
 
-const element = document.getElementById('artBoard');
+const dom = document.getElementById('artBoard')
+
+// Size
 
 const size = {
-    width: window.innerWidth,
-    height: window.innerHeight
+    width: window.innerWidth - 200,
+    height: window.innerHeight - 200
 }
 
-const props={
-    'color': 0x00ff00,
-    'bg': 0x00ffff,
-    'bgAlpha': 0.5,
-    circle:()=>{
-        gsap.to(cube.rotation,{duration:3,y:cube.rotation.y+20})
-    }
+// Cube Properties
+
+const cubeProps = {
+    x: 0,
+    y: 0,
+    z: 0,
+    color: 0xff0000
 }
 
-const loaderMg= new THREE.LoadingManager();
+// Matrial Properties
 
-const textureLoad = new THREE.TextureLoader(loaderMg);
+const matProps = {
+    color: 0xffffff,
+}
 
-const textures=textureLoad.load('/IMG-20200603-WA0010.jpg')
+// Scene
 
-const ratio = size.width / size.height;
-const threeD = new THREE.Scene();
+const screen = new THREE.Scene()
 
-const camera = new THREE.PerspectiveCamera(75, ratio, 0.1, 100);
-const controllers = new OrbitControls(camera, element)
-camera.position.z = 5
-controllers.enableDamping = true;
-controllers.update()
-threeD.add(camera)
+// Geo
 
-// const materials = new THREE.MeshBasicMaterial({map:textures})
-// const materials = new THREE.MeshNormalMaterial()
-const materials = new THREE.MeshMatcapMaterial()
-materials.matcap=textures
+const geo = new THREE.BoxBufferGeometry(1.5, 1, 1)
 
-// Cube
-const cubeGeo = new THREE.BoxBufferGeometry(3, 2, 4);
-const cube = new THREE.Mesh(cubeGeo, materials)
-cube.position.x=-1.5;
+// mat
 
-// Sphere
-const sphereGeo= new THREE.SphereBufferGeometry(0.5,16,16)
-const sphere = new THREE.Mesh(sphereGeo, materials)
-sphere.position.x=1.5;
-sphere.position.y=2.5;
+const mat = new THREE.MeshBasicMaterial({ color: cubeProps.color})
+mat.wireframe = true
 
-// Torus
-const torusGeo= new THREE.TorusBufferGeometry(0.5,0.2,10,30)
-const torus = new THREE.Mesh(torusGeo, materials)
-torus.position.x=3.5;
+// cube
 
+const cube = new THREE.Mesh(geo, mat)
 
-threeD.add(cube, sphere, torus)
+// Camera
 
-const render = new THREE.WebGLRenderer({ canvas: element})
-render.setClearColor(props.bg, props.bgAlpha);
-render.setSize(size.width, size.height);
+const camera = new THREE.PerspectiveCamera(75, size.width / size.height, 0.1, 1000)
 
-console.log(cube.geometry);
+camera.position.z = 3
+
+screen.add(cube, camera);
+
+// Orbit
+
+const control = new OrbitControls(camera, dom);
+
+control.enableDamping = true;
+
+// Renderer
+
+const polish = new THREE.WebGLRenderer({canvas: dom})
+
+polish.setSize(size.width, size.height);
+
+// console.log('Mesh Data: ', cube);
+// console.log('Camera Data: ', camera);
+console.log('Material Data: ', mat);
 
 // Debugger
-const debug = new dat.GUI({closed:true});
 
-if (size.width>=1000) {
-    debug.width=401
-} else if (size.width <= 800) {
-    debug.width=151    
+const dui = new debug.GUI()
+
+// Mesh Debugger
+
+dui.add(cube.position, 'x').min(-5).max(5).step(0.01).name('X-Axis')
+dui.add(cube.position, 'y').min(-5).max(5).step(0.01).name('Y-Axis')
+dui.add(cube.position, 'z').min(-5).max(5).step(0.01).name('Z-Axis')
+dui.add(mat, 'wireframe').name('Wireframes')
+dui.addColor(cubeProps, 'color').onChange(()=>{
+    mat.color.set(cubeProps.color)
+}).name('Color')
+
+// Final Render
+
+const anim = () => {
+    control.update()
+    polish.render(screen, camera)
+    requestAnimationFrame(anim)
 }
 
-debug.add(cube.scale, 'x', 0,5,0.1).name('Cube-Width').onChange((e)=>{
-    cube.scale.x=e
-})
-debug.add(cube.scale, 'z', 0, 5, 0.1).name('Cube-Depth').onChange((e)=>{
-    cube.scale.z=e
-})
-debug.add(cube.scale, 'y', 0,5,0.1).onChange((e)=>{
-    cube.scale.y=e
-}).name('Cube-Height')
-
-debug.add(cube.position, 'x', -15, 15, 0.1).name('Cube X-Axis')
-debug.add(cube.position, 'y', -15, 15, 0.1).name('Cube Y-Axis')
-debug.add(cube.position, 'z', -15, 15, 0.1).name('Cube Z-Axis')
-debug.add(sphere.position, 'x', -15, 15, 0.1).name('Sphere X-Axis')
-debug.add(sphere.position, 'y', -15, 15, 0.1).name('Sphere Y-Axis')
-debug.add(sphere.position, 'z', -15, 15, 0.1).name('Sphere Z-Axis')
-debug.add(torus.position, 'x', -15, 15, 0.1).name('Torus X-Axis')
-debug.add(torus.position, 'y', -15, 15, 0.1).name('Torus Y-Axis')
-debug.add(torus.position, 'z', -15, 15, 0.1).name('Torus Z-Axis')
-
-/* Change Properties of Torus */
-/* debug.add(torus.geometry.parameters, 'radius', -15, 15, 0.1).name('Torus radius')
-debug.add(torus.geometry.parameters, 'tube', -15, 15, 0.1).name('Torus tube')
-debug.add(torus.geometry.parameters, 'radialSegments', -15, 15, 0.1).name('Torus radialSegments')
-debug.add(torus.geometry.parameters, 'tubularSegments', -15, 15, 0.1).name('Torus tubularSegments') */
-
-// debug.add(cube.material, 'wireframe').name('Material-Wireframe')
-debug.add(props,'circle')
-
-// debug.addColor(props,'color').onChange(()=>{
-//     materials.color.set(props.color)
-// }).name('box-color')
-debug.addColor(props,'bg').onChange(()=>{
-    render.setClearColor(props.bg, props.bgAlpha);
-}).name('Background-color')
-debug.add(props,'bgAlpha',0,1,0.01).onChange(()=>{
-    render.setClearColor(props.bg, props.bgAlpha);
-}).name('Background-Color-Alpha')
-
-window.addEventListener('resize', () => {
-    camera.aspect = window.innerWidth / window.innerHeight;
-    camera.updateProjectionMatrix()
-    render.setSize(window.innerWidth, window.innerHeight);
-})
-
-element.addEventListener('dblclick', () => {
-    if (!document.fullscreenElement) {
-        element.requestFullscreen()
-    } else {
-        document.exitFullscreen()
-    }
-})
-
-// Complete Render
-const done = () => {
-    requestAnimationFrame(done)
-    render.render(threeD, camera);
-}
-done()
+anim();
