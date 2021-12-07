@@ -107,3 +107,6 @@ package-lock.json
 
 # TernJS port file
 .tern-port
+
+yarn.lock
+package-lock.json
