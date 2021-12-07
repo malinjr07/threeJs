@@ -2,7 +2,11 @@ import './style.css';
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import * as dat from 'dat.gui';
+/**
+ * Debugger Init
+ */
 
+const gui = new dat.GUI();
 /**
  * Texture Loader
  */
@@ -29,6 +33,8 @@ const props = {
   fullWidth: window.innerWidth,
   fullHeight: window.innerHeight,
   floorColor: '#a9c388',
+  ambient: '#ffffff',
+  ambientOpacity: 0.5,
 };
 
 /**
@@ -37,12 +43,58 @@ const props = {
 
 const base = new THREE.Mesh(
   new THREE.PlaneBufferGeometry(20, 20),
-  new THREE.MeshBasicMaterial({ color: props.floorColor })
+  new THREE.MeshStandardMaterial({ color: props.floorColor })
 );
 
 base.rotation.x = -Math.PI * 0.5;
 base.position.y = 0;
 scene.add(base);
+
+// Debugger
+
+const floor = gui.addFolder('Floor');
+// floor.add(base.position, 'x').min(-10).max(10).step(1).name('Position X');
+floor
+  .addColor(props, 'floorColor')
+  .name('Color')
+  .onChange(() => {
+    base.material.color.set(props.floorColor);
+  });
+
+floor.open();
+/**
+ * Lights Init
+ */
+
+// Ambient Light
+
+const ambient = new THREE.AmbientLight(props.ambient, props.ambientOpacity);
+
+scene.add(ambient);
+
+// Directional light
+
+const moonlight = new THREE.DirectionalLight('#ffffff', 0.5);
+moonlight.position.set(4, 5, -2);
+// Debugger
+const lights = gui.addFolder('Lights');
+
+const pointDebug = lights.addFolder('Point Light');
+const ambientDebug = lights.addFolder('Ambient Light');
+
+ambientDebug
+  .add(props, 'ambientOpacity')
+  .min(0)
+  .max(1)
+  .step(0.01)
+  .name('Intensity')
+  .onChange(() => {
+    ambient.intensity = props.ambientOpacity;
+  });
+
+lights.open();
+ambientDebug.open();
+
 /**
  * Camera Init
  */
@@ -78,32 +130,6 @@ const renderer = new THREE.WebGLRenderer({
 });
 renderer.setSize(props.fullWidth, props.fullHeight);
 renderer.setPixelRatio = Math.min(window.devicePixelRatio, 2);
-
-/**
- * Debugger Init
- */
-
-const gui = new dat.GUI();
-
-const floor = gui.addFolder('Floor');
-
-floor.add(base.position, 'x').min(-10).max(10).step(1).name('Position X');
-floor.add(base.position, 'y').min(-10).max(10).step(1).name('Position Y');
-floor.add(base.position, 'z').min(-10).max(10).step(1).name('Position Z');
-floor
-  .addColor(props, 'floorColor')
-  .name('Color')
-  .onChange(() => {
-    base.material.color.set(props.floorColor);
-  });
-// gui
-//   .add(controller, 'minPolarAngle')
-//   .min(0)
-//   .max(Math.PI)
-//   .step(0.01)
-//   .name('Orbit limit');
-
-// floor.open();
 
 /**
  * Resize Responsive
