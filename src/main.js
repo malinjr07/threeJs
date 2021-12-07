@@ -110,6 +110,7 @@ const bushMesh = new THREE.MeshStandardMaterial({ color: '#89c854' });
 const bush1 = new THREE.Mesh(bushGeo, bushMesh);
 const bush2 = new THREE.Mesh(bushGeo, bushMesh);
 const bush3 = new THREE.Mesh(bushGeo, bushMesh);
+const bush4 = new THREE.Mesh(bushGeo, bushMesh);
 
 bush1.position.z = walls.geometry.parameters.depth / 2 + 1;
 bush1.position.x = walls.geometry.parameters.depth / 2 + 1;
@@ -117,11 +118,17 @@ bush2.position.z = walls.geometry.parameters.depth / 2 + 1.5;
 bush2.position.x = walls.geometry.parameters.depth / 2 + 1.5;
 bush3.position.z = bush2.position.z;
 bush3.position.x = walls.geometry.parameters.depth / 2 + 1.8;
+bush4.position.z = bush2.position.z + 0.5;
+bush4.position.x = bush3.position.x;
 // bush2.position.y = bush2.geometry.parameters.widthSegments + 0.5;
-console.log(bush2);
 scene.add(bush1);
 scene.add(bush2);
 scene.add(bush3);
+scene.add(bush4);
+
+// Graves
+
+
 
 /**
  * Lights Init
