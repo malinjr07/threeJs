@@ -38,8 +38,10 @@ const props = {
 };
 
 /**
- * Floor Init
+ * Materials
  */
+
+/* Floor */
 
 const base = new THREE.Mesh(
   new THREE.PlaneBufferGeometry(20, 20),
@@ -62,6 +64,9 @@ floor
   });
 
 floor.open();
+
+/* House */
+
 /**
  * Lights Init
  */
@@ -79,7 +84,7 @@ moonlight.position.set(4, 5, -2);
 // Debugger
 const lights = gui.addFolder('Lights');
 
-const pointDebug = lights.addFolder('Point Light');
+const moonDebug = lights.addFolder('Point Light');
 const ambientDebug = lights.addFolder('Ambient Light');
 
 ambientDebug
