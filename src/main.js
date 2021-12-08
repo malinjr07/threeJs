@@ -3,6 +3,19 @@ import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import * as dat from 'dat.gui';
 /**
+ * Properties
+ */
+
+const props = {
+  fullWidth: window.innerWidth,
+  fullHeight: window.innerHeight,
+  ambient: '#b9b5ff',
+  floorColor: '#a9c388',
+  ambientOpacity: 0.12,
+  fog: '#262837',
+};
+
+/**
  * Debugger Init
  */
 
@@ -12,6 +25,28 @@ const gui = new dat.GUI();
  */
 
 const textureLoader = new THREE.TextureLoader();
+
+// Grasses
+const grassAO = textureLoader.load('./textures/grass/ambientOcclusion.jpg');
+const grassColor = textureLoader.load('./textures/grass/color.jpg');
+const grassNormal = textureLoader.load('./textures/grass/normal.jpg');
+const grassRough = textureLoader.load('./textures/grass/roughness.jpg');
+
+// Door Texture
+
+const doorNormal = textureLoader.load('./textures/door/normal.jpg');
+const doorAlpha = textureLoader.load('./textures/door/alpha.jpg');
+const doorColor = textureLoader.load('./textures/door/color.jpg');
+const doorMetal = textureLoader.load('./textures/door/metalness.jpg');
+const doorRough = textureLoader.load('./textures/door/roughness.jpg');
+const doorHeight = textureLoader.load('./textures/door/height.jpg');
+const doorAO = textureLoader.load('./textures/door/ambientOcclusion.jpg');
+
+// Wall Texture
+const wallAO = textureLoader.load('./textures/bricks/ambientOcclusion.jpg');
+const wallColor = textureLoader.load('./textures/bricks/color.jpg');
+const wallNormal = textureLoader.load('./textures/bricks/normal.jpg');
+const wallRough = textureLoader.load('./textures/bricks/roughness.jpg');
 
 /**
  * Canvas Init
@@ -26,16 +61,10 @@ const canvas = document.getElementById('artBoard');
 const scene = new THREE.Scene();
 
 /**
- * Properties
+ * Fog Init
  */
 
-const props = {
-  fullWidth: window.innerWidth,
-  fullHeight: window.innerHeight,
-  floorColor: '#a9c388',
-  ambient: '#b9b5ff',
-  ambientOpacity: 0.12,
-};
+scene.fog = new THREE.Fog(props.fog, 5, 12);
 
 /**
  * Materials
@@ -45,9 +74,19 @@ const props = {
 
 const base = new THREE.Mesh(
   new THREE.PlaneBufferGeometry(20, 20),
-  new THREE.MeshStandardMaterial({ color: props.floorColor })
+  new THREE.MeshStandardMaterial({
+    map: grassColor,
+    aoMap: grassAO,
+    normalMap: grassNormal,
+    transparent: true,
+    roughnessMap: grassRough,
+  })
 );
 
+base.geometry.setAttribute(
+  'uv2',
+  new THREE.Float32BufferAttribute(base.geometry.attributes.position.array, 2)
+);
 base.rotation.x = -Math.PI * 0.5;
 base.position.y = 0;
 scene.add(base);
@@ -76,9 +115,18 @@ scene.add(house);
 
 const walls = new THREE.Mesh(
   new THREE.BoxBufferGeometry(4, 3, 4),
-  new THREE.MeshStandardMaterial({ color: '#ac8e82' })
+  new THREE.MeshStandardMaterial({
+    transparent: true,
+    aoMap: wallAO,
+    map: wallColor,
+    normalMap: wallNormal,
+    roughnessMap: wallRough,
+  })
 );
-
+walls.geometry.setAttribute(
+  'uv2',
+  new THREE.Float32BufferAttribute(walls.geometry.attributes.uv.array, 2)
+);
 walls.position.y = walls.geometry.parameters.height / 2;
 house.add(walls);
 
@@ -96,8 +144,22 @@ house.add(roof);
 // Door
 
 const door = new THREE.Mesh(
-  new THREE.PlaneBufferGeometry(1.5, 2),
-  new THREE.MeshBasicMaterial({ color: '#aa7b7b' })
+  new THREE.PlaneBufferGeometry(2, 2, 100, 100),
+  new THREE.MeshStandardMaterial({
+    map: doorColor,
+    transparent: true,
+    alphaMap: doorAlpha,
+    aoMap: doorAO,
+    displacementMap: doorHeight,
+    displacementScale: 0.1,
+    metalnessMap: doorMetal,
+    roughnessMap: doorRough,
+    normalMap: doorNormal,
+  })
+);
+door.geometry.setAttribute(
+  'uv2',
+  new THREE.Float32BufferAttribute(door.geometry.attributes.uv.array, 2)
 );
 door.position.z = walls.geometry.parameters.depth / 2 + 0.001;
 door.position.y = door.geometry.parameters.height / 2;
@@ -177,8 +239,8 @@ doorLight.position.set(
 house.add(doorLight);
 
 // Debugger
-const lights = gui.addFolder('Lights');
 
+const lights = gui.addFolder('Lights');
 const doorDebug = lights.addFolder('Point Light');
 const ambientDebug = lights.addFolder('Ambient Light');
 
@@ -226,7 +288,7 @@ const camera = new THREE.PerspectiveCamera(
 );
 camera.position.x = 4;
 camera.position.y = 2;
-camera.position.z = 9;
+camera.position.z = 7;
 scene.add(camera);
 
 /**
@@ -247,6 +309,7 @@ controller.enableDamping = true;
 const renderer = new THREE.WebGLRenderer({
   canvas,
 });
+renderer.setClearColor(props.fog);
 renderer.setSize(props.fullWidth, props.fullHeight);
 renderer.setPixelRatio = Math.min(window.devicePixelRatio, 2);
 
