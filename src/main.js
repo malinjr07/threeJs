@@ -32,6 +32,19 @@ const grassColor = textureLoader.load('./textures/grass/color.jpg');
 const grassNormal = textureLoader.load('./textures/grass/normal.jpg');
 const grassRough = textureLoader.load('./textures/grass/roughness.jpg');
 
+grassAO.repeat.set(8, 8);
+grassColor.repeat.set(8, 8);
+grassNormal.repeat.set(8, 8);
+grassRough.repeat.set(8, 8);
+grassAO.wrapS = THREE.RepeatWrapping;
+grassColor.wrapS = THREE.RepeatWrapping;
+grassNormal.wrapS = THREE.RepeatWrapping;
+grassRough.wrapS = THREE.RepeatWrapping;
+grassAO.wrapT = THREE.RepeatWrapping;
+grassColor.wrapT = THREE.RepeatWrapping;
+grassNormal.wrapT = THREE.RepeatWrapping;
+grassRough.wrapT = THREE.RepeatWrapping;
+
 // Door Texture
 
 const doorNormal = textureLoader.load('./textures/door/normal.jpg');
@@ -64,7 +77,7 @@ const scene = new THREE.Scene();
  * Fog Init
  */
 
-scene.fog = new THREE.Fog(props.fog, 5, 12);
+scene.fog = new THREE.Fog(props.fog, 3, 15);
 
 /**
  * Materials
@@ -209,6 +222,7 @@ for (let i = 0; i < 50; i++) {
   );
   grave.rotation.y = (Math.random() - 0.5) * 0.4;
   grave.rotation.z = (Math.random() - 0.5) * 0.4;
+  grave.castShadow = true;
   graveyard.add(grave);
 }
 
@@ -226,6 +240,8 @@ scene.add(ambient);
 
 const moonlight = new THREE.DirectionalLight('#ffffff', 0.5);
 moonlight.position.set(4, 5, -2);
+// const moonHelper = new THREE.DirectionalLightHelper(moonlight, 1);
+// scene.add(moonHelper);
 scene.add(moonlight);
 
 // Door Light
@@ -238,11 +254,26 @@ doorLight.position.set(
 );
 house.add(doorLight);
 
+// Ghost Light
+
+const ghost1 = new THREE.PointLight('#ff00ff', 2, 3);
+ghost1.position.setY = 0.3;
+scene.add(ghost1);
+
+const ghost2 = new THREE.PointLight('#00ffff', 2, 3);
+ghost2.position.setY = 0.3;
+scene.add(ghost2);
+
+const ghost3 = new THREE.PointLight('#ffff00', 2, 3);
+ghost3.position.setY = 0.3;
+scene.add(ghost3);
+
 // Debugger
 
 const lights = gui.addFolder('Lights');
 const doorDebug = lights.addFolder('Point Light');
 const ambientDebug = lights.addFolder('Ambient Light');
+const moonDebug = lights.addFolder('Moon Light');
 
 ambientDebug
   .add(props, 'ambientOpacity')
@@ -272,9 +303,28 @@ doorDebug
   .step(0.001)
   .name('doorLight z position');
 
+moonDebug
+  .add(moonlight.position, 'x')
+  .min(-10)
+  .max(10)
+  .step(0.001)
+  .name('moonlight x position');
+moonDebug
+  .add(moonlight.position, 'y')
+  .min(-10)
+  .max(10)
+  .step(0.001)
+  .name('moonlight x position');
+moonDebug
+  .add(moonlight.position, 'z')
+  .min(-10)
+  .max(10)
+  .step(0.001)
+  .name('moonlight x position');
+
 lights.open();
 // ambientDebug.open();
-doorDebug.open();
+moonDebug.open();
 
 /**
  * Camera Init
@@ -309,9 +359,47 @@ controller.enableDamping = true;
 const renderer = new THREE.WebGLRenderer({
   canvas,
 });
+// Shadow
+
+doorLight.castShadow = true;
+doorLight.shadow.mapSize.width = 256;
+doorLight.shadow.mapSize.height = 256;
+doorLight.shadow.camera.far = 15;
+
+moonlight.castShadow = true;
+moonlight.shadow.mapSize.width = 256;
+moonlight.shadow.mapSize.height = 256;
+moonlight.shadow.camera.far = 7;
+
+ghost1.castShadow = true;
+ghost1.shadow.mapSize.width = 256;
+ghost1.shadow.mapSize.height = 256;
+ghost1.shadow.camera.far = 7;
+
+ghost2.castShadow = true;
+ghost2.shadow.mapSize.width = 256;
+ghost2.shadow.mapSize.height = 256;
+ghost2.shadow.camera.far = 7;
+
+ghost3.castShadow = true;
+ghost3.shadow.mapSize.width = 256;
+ghost3.shadow.mapSize.height = 256;
+ghost3.shadow.camera.far = 7;
+
+walls.castShadow = true;
+
+bush1.castShadow = true;
+
+bush2.castShadow = true;
+
+bush3.castShadow = true;
+
+base.receiveShadow = true;
+
 renderer.setClearColor(props.fog);
 renderer.setSize(props.fullWidth, props.fullHeight);
 renderer.setPixelRatio = Math.min(window.devicePixelRatio, 2);
+renderer.shadowMap.enabled = true;
 
 /**
  * Resize Responsive
@@ -332,8 +420,27 @@ window.addEventListener('resize', () => {
  * Rendered
  */
 
+const clock = new THREE.Clock();
+
 const animate = () => {
   requestAnimationFrame(animate);
+
+  const elapse = clock.getElapsedTime();
+
+  const ghost1Angle = elapse * 0.5;
+  ghost1.position.x = Math.cos(ghost1Angle) * 9;
+  ghost1.position.z = Math.sin(ghost1Angle) * 9;
+  ghost1.position.y = Math.sin(elapse * 2);
+  const ghost2Angle = -elapse * 0.5;
+  ghost2.position.x = Math.cos(ghost2Angle) * 3;
+  ghost2.position.z = Math.sin(ghost2Angle) * 5;
+  ghost2.position.y = Math.sin(elapse * 1.5) + Math.sin(elapse * 0.5);
+
+  const ghost3Angle = -elapse * 0.5;
+  ghost3.position.x = Math.cos(ghost3Angle) * 6 + Math.sin(elapse * 0.5);
+  ghost3.position.z = Math.sin(ghost3Angle) * 6;
+  ghost3.position.y = Math.sin(elapse * 1.5);
+
   renderer.render(scene, camera);
   controller.update();
 };
