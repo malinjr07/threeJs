@@ -20,6 +20,33 @@ const props = {
  */
 
 const gui = new dat.GUI();
+
+/**
+ * FontLoader
+ */
+
+const fontLoader = new THREE.FontLoader();
+
+fontLoader.load('./fonts/Squids.json', (font) => {
+  const textGeo = new THREE.TextBufferGeometry('My heart without Rizu', {
+    font,
+    size: 0.5,
+    height: 0.2,
+    curveSegments: 10,
+    bevelEnabled: true,
+    bevelThickness: 0.03,
+    bevelSize: 0.02,
+    bevelOffset: 0,
+    bevelSegments: 5,
+  });
+  const textMat = new THREE.MeshBasicMaterial();
+  textMat.wireframe = true;
+  const text = new THREE.Mesh(textGeo, textMat);
+  text.position.set(-5, 10, 0);
+  text.rotation.set(-Math.PI / 2, 0, 0);
+  scene.add(text);
+});
+
 /**
  * Texture Loader
  */
@@ -153,6 +180,7 @@ roof.position.y =
   walls.geometry.parameters.height + roof.geometry.parameters.height / 2;
 roof.rotation.y = Math.PI / 4;
 house.add(roof);
+roof.castShadow = false;
 
 // Door
 
@@ -322,7 +350,7 @@ moonDebug
   .step(0.001)
   .name('moonlight x position');
 
-lights.open();
+// lights.open();
 // ambientDebug.open();
 moonDebug.open();
 
@@ -336,9 +364,9 @@ const camera = new THREE.PerspectiveCamera(
   0.1,
   1000
 );
-camera.position.x = 4;
-camera.position.y = 2;
-camera.position.z = 7;
+camera.position.x = 0;
+camera.position.y = 18;
+camera.position.z = 0;
 scene.add(camera);
 
 /**
@@ -349,7 +377,7 @@ const controller = new OrbitControls(camera, canvas);
 
 // Rotation Limit to Ground
 
-// controller.maxPolarAngle = Math.PI / 2 - 0.1;
+controller.maxPolarAngle = Math.PI / 2 - 0.5;
 controller.enableDamping = true;
 
 /**
@@ -364,12 +392,12 @@ const renderer = new THREE.WebGLRenderer({
 doorLight.castShadow = true;
 doorLight.shadow.mapSize.width = 256;
 doorLight.shadow.mapSize.height = 256;
-doorLight.shadow.camera.far = 15;
+// doorLight.shadow.camera.far = 7;
 
 moonlight.castShadow = true;
 moonlight.shadow.mapSize.width = 256;
 moonlight.shadow.mapSize.height = 256;
-moonlight.shadow.camera.far = 7;
+// moonlight.shadow.camera.far = 15;
 
 ghost1.castShadow = true;
 ghost1.shadow.mapSize.width = 256;
