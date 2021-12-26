@@ -365,9 +365,17 @@ const camera = new THREE.PerspectiveCamera(
   1000
 );
 camera.position.x = 0;
-camera.position.y = 18;
-camera.position.z = 0;
+camera.position.y = 5;
+camera.position.z = 8;
 scene.add(camera);
+
+const camDebug = gui.addFolder('Camera');
+
+camDebug.add(camera.position, 'x').min(-10).max(20).step(0.01).name('CameraX');
+camDebug.add(camera.position, 'y').min(-10).max(20).step(0.01).name('CameraY');
+camDebug.add(camera.position, 'z').min(-10).max(20).step(0.01).name('CameraZ');
+
+camDebug.open();
 
 /**
  * Controls Init
@@ -377,7 +385,7 @@ const controller = new OrbitControls(camera, canvas);
 
 // Rotation Limit to Ground
 
-controller.maxPolarAngle = Math.PI / 2 - 0.5;
+controller.maxPolarAngle = Math.PI / 2 - 0.15;
 controller.enableDamping = true;
 
 /**
@@ -392,12 +400,12 @@ const renderer = new THREE.WebGLRenderer({
 doorLight.castShadow = true;
 doorLight.shadow.mapSize.width = 256;
 doorLight.shadow.mapSize.height = 256;
-// doorLight.shadow.camera.far = 7;
+doorLight.shadow.camera.far = 10;
 
 moonlight.castShadow = true;
 moonlight.shadow.mapSize.width = 256;
 moonlight.shadow.mapSize.height = 256;
-// moonlight.shadow.camera.far = 15;
+moonlight.shadow.camera.far = 15;
 
 ghost1.castShadow = true;
 ghost1.shadow.mapSize.width = 256;
