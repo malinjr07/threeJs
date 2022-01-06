@@ -12,9 +12,7 @@ const canvas = document.getElementById('artBoard');
 const obj = {
   width: window.innerWidth,
   height: window.innerHeight,
-  particleSize: 0.035,
   color: '#ffffff',
-  attenuation: true,
 };
 
 const clock = new THREE.Clock();
@@ -54,21 +52,11 @@ controls.enableDamping = true;
 
 // Model
 
-const geometry = new THREE.SphereBufferGeometry(1, 16, 16);
-const material = new THREE.PointsMaterial({
-  size: obj.particleSize,
-  sizeAttenuation: obj.attenuation,
-});
-const mesh = new THREE.Points(geometry, material);
-view.add(mesh);
+const material = new THREE.MeshStandardMaterial({ color: obj.color });
+const geometry = new THREE.BoxBufferGeometry(1, 1, 1);
+const cube = new THREE.Mesh(geometry, material);
+view.add(cube);
 
-console.log(material);
-
-// Debugers
-
-const particle = gui.addFolder('Particle');
-
-particle.add(material, 'size').min(0.01).max(0.1).step(0.01).name('Size');
 // Responsive
 
 window.addEventListener('resize', () => {
