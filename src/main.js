@@ -17,6 +17,8 @@ const obj = {
   attenuation: true,
 };
 
+const count = 500;
+
 const clock = new THREE.Clock();
 
 // TextureLoader
@@ -54,15 +56,20 @@ controls.enableDamping = true;
 
 // Model
 
-const geometry = new THREE.SphereBufferGeometry(1, 16, 16);
-const material = new THREE.PointsMaterial({
-  size: obj.particleSize,
-  sizeAttenuation: obj.attenuation,
-});
+const geometry = new THREE.BufferGeometry();
+const position = new Float32Array(count * 3);
+
+for (let index = 0; index < position * 3; index++) {
+  position[index] = (Math.random() - 0.5) * 2;
+}
+
+geometry.setAttribute('position', new THREE.BufferAttribute(position, 3));
+
+const material = new THREE.PointsMaterial();
+material.size = obj.particleSize;
+material.sizeAttenuation = obj.attenuation;
 const mesh = new THREE.Points(geometry, material);
 view.add(mesh);
-
-console.log(material);
 
 // Debugers
 
