@@ -12,8 +12,8 @@ const canvas = document.getElementById('artBoard');
 const obj = {
   width: window.innerWidth,
   height: window.innerHeight,
-  particleSize: 0.035,
-  color: '#ffffff',
+  particleSize: 0.35,
+  color: '#E11444',
   attenuation: true,
 };
 
@@ -54,20 +54,28 @@ view.add(camera);
 const controls = new OrbitControls(camera, canvas);
 controls.enableDamping = true;
 
+// Testure
+
+const star = textureLoader.load('textures/particles/2.png');
+
 // Model
 
 const geometry = new THREE.BufferGeometry();
 const position = new Float32Array(count * 3);
 
-for (let index = 0; index < position * 3; index++) {
-  position[index] = (Math.random() - 0.5) * 2;
+for (let index = 0; index < count * 3; index++) {
+  position[index] = (Math.random() - 0.5) * 10;
 }
 
 geometry.setAttribute('position', new THREE.BufferAttribute(position, 3));
 
+// const geometry = new THREE.SphereBufferGeometry(5, 32, 32);
+
 const material = new THREE.PointsMaterial();
 material.size = obj.particleSize;
 material.sizeAttenuation = obj.attenuation;
+material.color = new THREE.Color('pink');
+material.map = star;
 const mesh = new THREE.Points(geometry, material);
 view.add(mesh);
 
