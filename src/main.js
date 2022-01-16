@@ -12,12 +12,8 @@ const canvas = document.getElementById('artBoard');
 const obj = {
   width: window.innerWidth,
   height: window.innerHeight,
-  particleSize: 0.35,
-  color: '#E11444',
-  attenuation: true,
+  color: '#ffffff',
 };
-
-const count = 2000;
 
 const clock = new THREE.Clock();
 
@@ -54,53 +50,13 @@ view.add(camera);
 const controls = new OrbitControls(camera, canvas);
 controls.enableDamping = true;
 
-// Testure
-
-const star = textureLoader.load('textures/particles/2.png');
-
 // Model
 
-const geometry = new THREE.BufferGeometry();
-const position = new Float32Array(count * 3);
-const colors = new Float32Array(count * 3);
+const material = new THREE.MeshStandardMaterial({ color: obj.color });
+const geometry = new THREE.BoxBufferGeometry(1, 1, 1);
+const cube = new THREE.Mesh(geometry, material);
+view.add(cube);
 
-for (let index = 0; index < count * 3; index++) {
-  position[index] = (Math.random() - 0.5) * 10;
-  colors[index] = (Math.random() - 0.5) * 10;
-}
-
-geometry.setAttribute('position', new THREE.BufferAttribute(position, 3));
-geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
-
-// const geometry = new THREE.SphereBufferGeometry(5, 32, 32);
-
-const material = new THREE.PointsMaterial();
-material.size = obj.particleSize;
-material.sizeAttenuation = obj.attenuation;
-material.color = new THREE.Color('pink');
-material.transparent = true;
-material.alphaMap = star;
-// material.alphaTest = 0.001;
-material.depthWrite = false;
-material.blending = THREE.AdditiveBlending;
-material.vertexColors = true;
-const particles = new THREE.Points(geometry, material);
-view.add(particles);
-
-// Cube
-
-// const cube = new THREE.Mesh(
-//   new THREE.SphereBufferGeometry(1, 32, 32),
-//   new THREE.MeshBasicMaterial({ color: 'ffffff' })
-// );
-
-// view.add(cube);
-
-// Debugers
-
-const particle = gui.addFolder('Particle');
-
-particle.add(material, 'size').min(0.01).max(0.1).step(0.01).name('Size');
 // Responsive
 
 window.addEventListener('resize', () => {
@@ -119,16 +75,6 @@ const renderer = new THREE.WebGLRenderer({ canvas });
 renderer.setSize(obj.width, obj.height);
 
 const action = () => {
-  const elapsedTime = clock.getElapsedTime();
-
-  for (let index = 0; index < count; index++) {
-    const index3 = index * 3;
-    const indexX = geometry.attributes.position.array[index3];
-    geometry.attributes.position.array[index3 + 1] = Math.sin(
-      elapsedTime + indexX
-    );
-  }
-  geometry.attributes.position.needsUpdate = true;
   requestAnimationFrame(action);
   controls.update();
   renderer.render(view, camera);
