@@ -21,6 +21,8 @@ const clock = new THREE.Clock();
 
 const textureLoader = new THREE.TextureLoader();
 
+console.log(textureLoader);
+
 // Debugger
 
 const gui = new dat.GUI();
